@@ -1,8 +1,3 @@
-import google.generativeai as genai
-import os
-
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-2.0-flash")
 BACKGROUND_DATA_PROMPT = """
     Be detailed. Search about the following. Give me back a very length response going into details about everything regarding this topic.
 """
@@ -25,7 +20,12 @@ def generate_research_data(user_description: str) -> str:
     Raises:
         Exception: If there is an error communicating with the Gemini AI API
     """
-    print("Generating research data")
+    import google.generativeai as genai
+    import os
+
+    genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+    model = genai.GenerativeModel("gemini-2.0-flash")
+    # print("Generating research data")
     full_prompt = f"{BACKGROUND_DATA_PROMPT}\n\n{user_description}"
 
     try:

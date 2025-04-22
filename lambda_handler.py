@@ -1,30 +1,42 @@
-import argparse
-import logging
-import os
-import time
-import json
-from dotenv import load_dotenv
-from supabase import Client, create_client
-from podcastfy.client import generate_podcast
-
-from utils.podcast_generation_utils import generate_research_data
-
-
-load_dotenv()
-supabase_url = os.environ.get("SUPABASE_URL")
-supabase_key = os.environ.get("SUPABASE_KEY")
-
-supabase: Client = create_client(supabase_url, supabase_key)
-
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+"""
+Gotchas I Encountered
+1. Moved imports into lambda_handler to reduce init (not sure if this was the actual reason, we can try moving back out)
+2. Updated memory to 900MB in lambda. This was the reason why i was running into init issues,
+since the dependencies is 600mb+ but default lambda memory is like way under that
+3. Updated architecture to use ARM
+4. Update timeout to 2mins, need to extend to like 10mins or longer
+5. Updated output_directories to use
+TODO: Figure out optimal memory and ephemeral storage to use. Memory should be consistent for all, storage can vary.
+"""
 
 
-def genPod(podcast_id):
-    start_time = time.time()
-    logger.info(f"Starting podcast generation for podcast_id: {podcast_id}")
+def lambda_handler(event, context):
+    import time
+    import json
+    import os
+
+    from dotenv import load_dotenv
+    from supabase import Client, create_client
+    from podcastfy.client import generate_podcast
+    from utils.podcast_generation_utils import generate_research_data
+    import logging
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    logger.info("Lambda Handler Event Received")
+    podcast_id = event.get("podcast_id", "No podcast_id provided")
+    logger.info(f"Processing podcast_id: {podcast_id}")
 
     try:
+        start_time = time.time()
+        load_dotenv()
+        supabase_url = os.environ.get("SUPABASE_URL")
+        supabase_key = os.environ.get("SUPABASE_KEY")
+
+        supabase: Client = create_client(supabase_url, supabase_key)
+        logger.info(f"Starting podcast generation for podcast_id: {podcast_id}")
+
         response = supabase.table("podcasts").select("*").eq("id", podcast_id).execute()
         podcast = response.data[0]
         user_id = podcast["user_id"]
@@ -41,6 +53,12 @@ def genPod(podcast_id):
             "podcast_name": "InstaPod",
             "podcast_tagline": "Your AI powered podcast",
             "creativity": 0,
+            "text_to_speech": {
+                "output_directories": {
+                    "transcripts": "./tmp/transcripts",
+                    "audio": "./tmp/audio",
+                }
+            },
         }
         logger.info("Starting podcast audio generation")
         audio_file = generate_podcast(
@@ -64,10 +82,6 @@ def genPod(podcast_id):
             )
         logger.info("Podcast uploaded successfully to storage")
 
-        # # Delete the local audio file after successful upload
-        # os.remove(audio_file)
-        # logger.info(f"Deleted local audio file: {audio_file}")
-
         logger.info("Updating podcast status to READY")
         response = (
             supabase.table("podcasts")
@@ -83,18 +97,6 @@ def genPod(podcast_id):
             f"Podcast generation completed successfully in {execution_time:.2f} seconds"
         )
 
-    except Exception as e:
-        logger.error(f"Error during podcast generation: {str(e)}", exc_info=True)
-        raise
-
-
-def lambda_handler(event, context):
-    logger.info("Lambda Handler Event Received")
-    podcast_id = event.get("podcast_id", "No podcast_id provided")
-    logger.info(f"Processing podcast_id: {podcast_id}")
-
-    try:
-        genPod(podcast_id)
         return {
             "statusCode": 200,
             "body": json.dumps(
@@ -115,13 +117,17 @@ def lambda_handler(event, context):
 
 
 if __name__ == "__main__":
+    import argparse
+
     parser = argparse.ArgumentParser(description="Process user ID and prompt")
     parser.add_argument("--podcastId", required=True, help="Podcast ID")
     args = parser.parse_args()
     podcast_id = args.podcastId
 
     try:
-        genPod(podcast_id)
+        # Create a mock event for local testing
+        event = {"podcast_id": podcast_id}
+        lambda_handler(event, None)
     except Exception as e:
-        logger.error(f"Script execution failed: {str(e)}", exc_info=True)
+        print(f"Script execution failed: {str(e)}", exc_info=True)
         raise
