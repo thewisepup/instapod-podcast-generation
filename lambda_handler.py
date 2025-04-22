@@ -59,8 +59,8 @@ def lambda_handler(event, context):
                 "output_directories": {
                     "transcripts": "/tmp/transcripts",
                     "audio": "/tmp/audio",
-                    "temp_audio_dir": "/tmp/audio/tmp/",
-                }
+                },
+                "temp_audio_dir": "/tmp/audio/tmp/",
             },
         }
         logger.info("Starting podcast audio generation")
