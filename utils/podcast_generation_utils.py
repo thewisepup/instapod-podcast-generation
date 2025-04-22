@@ -25,7 +25,7 @@ def generate_research_data(user_description: str) -> str:
 
     genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
     model = genai.GenerativeModel("gemini-2.0-flash")
-    # print("Generating research data")
+    print("Generating research data")
     full_prompt = f"{BACKGROUND_DATA_PROMPT}\n\n{user_description}"
 
     try:

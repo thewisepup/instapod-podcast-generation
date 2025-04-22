@@ -29,15 +29,15 @@ echo "Setting AWS profile to $AWS_PROFILE..."
 export AWS_PROFILE=$AWS_PROFILE
 
 echo "Logging into AWS ECR..."
-aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin $ECR_REPO
+aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 450946881138.dkr.ecr.us-east-2.amazonaws.com
 
 echo "Building Docker image..."
 docker build -t instapod-podcast-generation .
 
 echo "Tagging Docker image..."
-docker tag instapod-podcast-generation:latest $ECR_REPO:latest
+docker tag instapod-podcast-generation:latest 450946881138.dkr.ecr.us-east-2.amazonaws.com/instapod-podcast-generation:latest
 
 echo "Pushing Docker image to ECR..."
-docker push $ECR_REPO:latest
+docker push 450946881138.dkr.ecr.us-east-2.amazonaws.com/instapod-podcast-generation:latest
 
 echo "Deployment to $DEPLOY_ENV completed successfully!"

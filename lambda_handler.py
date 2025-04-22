@@ -23,10 +23,11 @@ def lambda_handler(event, context):
 
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
+    logger.info("TEST NEW Handler Event Received")
 
     logger.info("Lambda Handler Event Received")
     podcast_id = event.get("podcast_id", "No podcast_id provided")
-    logger.info(f"Processing podcast_id: {podcast_id}")
+    logger.info(f"New Processing podcast_id: {podcast_id}")
 
     try:
         start_time = time.time()
@@ -53,11 +54,11 @@ def lambda_handler(event, context):
             "podcast_name": "InstaPod",
             "podcast_tagline": "Your AI powered podcast",
             "creativity": 0,
-            "temp_audio_dir": "./tmp/audio/tmp/",
+            "temp_audio_dir": "tmp/audio/tmp/",
             "text_to_speech": {
                 "output_directories": {
-                    "transcripts": "./tmp/transcripts",
-                    "audio": "./tmp/audio",
+                    "transcripts": "tmp/transcripts",
+                    "audio": "tmp/audio",
                 }
             },
         }
