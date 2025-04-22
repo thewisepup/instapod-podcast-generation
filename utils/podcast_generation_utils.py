@@ -30,10 +30,10 @@ def generate_research_data(user_description: str) -> str:
 
     try:
         response = model.generate_content(full_prompt)
-        print(
-            f"\n--- generate_background_data response: {response.usage_metadata} --- \n"
-        )
-        print(response.text)
+        # print(
+        #     f"\n--- generate_background_data response: {response.usage_metadata} --- \n"
+        # )
+        # print(response.text)
         return response.text
 
     except Exception as e:

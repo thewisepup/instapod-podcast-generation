@@ -53,6 +53,7 @@ def lambda_handler(event, context):
             "podcast_name": "InstaPod",
             "podcast_tagline": "Your AI powered podcast",
             "creativity": 0,
+            "temp_audio_dir": "./tmp/audio/tmp/",
             "text_to_speech": {
                 "output_directories": {
                     "transcripts": "./tmp/transcripts",
