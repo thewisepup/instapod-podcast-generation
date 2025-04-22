@@ -5,7 +5,7 @@ Gotchas I Encountered
 since the dependencies is 600mb+ but default lambda memory is like way under that
 3. Updated architecture to use ARM
 4. Update timeout to 2mins, need to extend to like 10mins or longer
-5. Updated output_directories to use
+5. Updated output_directories to use /tmp instead of /data. By default, AWS Lambda's filesystem is read-only, except for the /tmp directory
 TODO: Figure out optimal memory and ephemeral storage to use. Memory should be consistent for all, storage can vary.
 """
 
@@ -54,11 +54,12 @@ def lambda_handler(event, context):
             "podcast_name": "InstaPod",
             "podcast_tagline": "Your AI powered podcast",
             "creativity": 0,
-            "temp_audio_dir": "tmp/audio/tmp/",
+            # By default, AWS Lambda's filesystem is read-only, except for the /tmp  directory https://cloudcasts.io/article/lambda-limitations
             "text_to_speech": {
                 "output_directories": {
-                    "transcripts": "tmp/transcripts",
-                    "audio": "tmp/audio",
+                    "transcripts": "/tmp/transcripts",
+                    "audio": "/tmp/audio",
+                    "temp_audio_dir": "/tmp/audio/tmp/",
                 }
             },
         }
