@@ -5,8 +5,8 @@ set -e
 
 # Default to beta deployment
 DEPLOY_ENV="beta"
-AWS_PROFILE="instapod-beta"
-ECR_REPO="450946881138.dkr.ecr.us-east-2.amazonaws.com/instapod-podcast-generation-beta"
+AWS_PROFILE="instapod-prod" #TODO: update to beta when ready
+ECR_REPO="450946881138.dkr.ecr.us-east-2.amazonaws.com/instapod-podcast-generation"
 
 # Check for --prod flag
 if [[ "$1" == "--prod" ]]; then
