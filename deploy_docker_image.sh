@@ -39,5 +39,8 @@ docker tag instapod-podcast-generation:latest 450946881138.dkr.ecr.us-east-2.ama
 
 echo "Pushing Docker image to ECR..."
 docker push 450946881138.dkr.ecr.us-east-2.amazonaws.com/instapod-podcast-generation:latest
+g
+echo "Updating Lambda function to use the new image..."
+aws lambda update-function-code --function-name instapod-podcast-generation --image-uri 450946881138.dkr.ecr.us-east-2.amazonaws.com/instapod-podcast-generation:latest --region us-east-2
 
 echo "Deployment to $DEPLOY_ENV completed successfully!"
