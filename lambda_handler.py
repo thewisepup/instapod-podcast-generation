@@ -6,6 +6,8 @@ since the dependencies is 600mb+ but default lambda memory is like way under tha
 3. Updated architecture to use ARM
 4. Update timeout to 2mins, need to extend to like 10mins or longer
 5. Updated output_directories to use /tmp instead of /data. By default, AWS Lambda's filesystem is read-only, except for the /tmp directory
+6. You need to update your lambda's docker image every time you push a new docker image to ECR. Seems obvious, but it's easy to forget.
+Just add this step as part of your automation script or CI/CD pipeline
 TODO: Figure out optimal memory and ephemeral storage to use. Memory should be consistent for all, storage can vary.
 """
 
@@ -17,8 +19,9 @@ def lambda_handler(event, context):
 
     from dotenv import load_dotenv
     from supabase import Client, create_client
-    from podcastfy.client import generate_podcast
     from utils.podcast_generation_utils import generate_research_data
+    from podcastfy.client import generate_podcast
+
     import logging
 
     logger = logging.getLogger()
