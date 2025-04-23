@@ -229,12 +229,8 @@ class TextToSpeech:
     def _setup_directories(self) -> None:
         """Setup required directories for audio processing."""
         self.output_directories = self.tts_config.get("output_directories", {})
-        temp_dir = (
-            self.tts_config.get("temp_audio_dir", "data/audio/tmp/")
-            .rstrip("/")
-            .split("/")
-        )
-        self.temp_audio_dir = os.path.join(*temp_dir)
+
+        self.temp_audio_dir = self.tts_config.get("temp_audio_dir", "data/audio/tmp/")
 
         os.makedirs(self.temp_audio_dir, exist_ok=True)
 
@@ -244,6 +240,7 @@ class TextToSpeech:
             self.output_directories.get("audio"),
             self.temp_audio_dir,
         ]:
+            print(dir_path)
             if dir_path and not os.path.exists(dir_path):
                 os.makedirs(dir_path)
 
