@@ -8,6 +8,9 @@ since the dependencies is 600mb+ but default lambda memory is like way under tha
 5. Updated output_directories to use /tmp instead of /data. By default, AWS Lambda's filesystem is read-only, except for the /tmp directory
 6. You need to update your lambda's docker image every time you push a new docker image to ECR. Seems obvious, but it's easy to forget.
 Just add this step as part of your automation script or CI/CD pipeline
+7. public.ecr.aws/lambda/python:3.11 doesn't come with ffmpeg. You need to install ffmpeg for the podcast generation to work.
+8. Make sure to download the right ffmpeg binary for the architecutre you are using (arm64 vs amd64)
+
 TODO: Figure out optimal memory and ephemeral storage to use. Memory should be consistent for all, storage can vary.
 """
 
