@@ -19,3 +19,4 @@ COPY utils ${LAMBDA_TASK_ROOT}/utils
 COPY podcastfy ${LAMBDA_TASK_ROOT}/podcastfy
 
 CMD [ "lambda_handler.lambda_handler" ]
+ 

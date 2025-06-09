@@ -1,18 +1,55 @@
 """
 Gotchas I Encountered
 1. Moved imports into lambda_handler to reduce init (not sure if this was the actual reason, we can try moving back out)
-2. Updated memory to 900MB in lambda. This was the reason why i was running into init issues,
-since the dependencies is 600mb+ but default lambda memory is like way under that
-3. Updated architecture to use ARM
-4. Update timeout to 2mins, need to extend to like 10mins or longer
-5. Updated output_directories to use /tmp instead of /data. By default, AWS Lambda's filesystem is read-only, except for the /tmp directory
+2. Updated memory to 600MB in lambda. Max memory used was around 440MB from previous rounds
+3. Updated Lambda architecture to use ARM to match my docker image and local development
+4. Update timeout to 15mins. Default timeout is too short.
+5. By default, AWS Lambda's filesystem is read-only, except for the /tmp directory. Updated output_directories to use /tmp instead of /data.
 6. You need to update your lambda's docker image every time you push a new docker image to ECR. Seems obvious, but it's easy to forget.
 Just add this step as part of your automation script or CI/CD pipeline
 7. public.ecr.aws/lambda/python:3.11 doesn't come with ffmpeg. You need to install ffmpeg for the podcast generation to work.
-8. Make sure to download the right ffmpeg binary for the architecutre you are using (arm64 vs amd64)
-
-TODO: Figure out optimal memory and ephemeral storage to use. Memory should be consistent for all, storage can vary.
+8. Make sure to download the right ffmpeg binary for the architecture you are using (arm64 vs amd64)
 """
+
+import json
+
+
+def get_podcast_id(event):
+    """
+    Extract podcast_id from the event payload.
+    Returns a tuple of (podcast_id, error_response).
+    If podcast_id is found, error_response will be None.
+    If there's an error, podcast_id will be None and error_response will contain the error details.
+    """
+    if isinstance(event.get("body"), str):
+        try:
+            body = json.loads(event["body"])
+            podcast_id = body.get("podcast_id")
+        except json.JSONDecodeError:
+            return None, {
+                "statusCode": 400,
+                "body": json.dumps(
+                    {
+                        "message": "Invalid JSON body",
+                        "error": "The request body must be valid JSON",
+                    }
+                ),
+            }
+    else:
+        podcast_id = event.get("podcast_id")
+
+    if not podcast_id:
+        return None, {
+            "statusCode": 400,
+            "body": json.dumps(
+                {
+                    "message": "Missing required parameter",
+                    "error": "podcast_id is required",
+                }
+            ),
+        }
+
+    return podcast_id, None
 
 
 def lambda_handler(event, context):
@@ -29,11 +66,14 @@ def lambda_handler(event, context):
 
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    logger.info("TEST NEW Handler Event Received")
+    logger.info("Handler Event Received " + str(event))
 
     logger.info("Lambda Handler Event Received")
-    podcast_id = event.get("podcast_id", "No podcast_id provided")
-    logger.info(f"New Processing podcast_id: {podcast_id}")
+    podcast_id, error_response = get_podcast_id(event)
+    if error_response:
+        return error_response
+
+    logger.info(f"Processing podcast_id: {podcast_id}")
 
     try:
         start_time = time.time()

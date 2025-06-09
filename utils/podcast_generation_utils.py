@@ -1,5 +1,7 @@
 BACKGROUND_DATA_PROMPT = """
-    Be detailed. Search about the following. Give me back a very length response going into details about everything regarding this topic.
+    Be detailed. Search about the following. 
+    Give me back a very length response going into 
+    details about everything regarding this topic.
 """
 
 
@@ -22,18 +24,12 @@ def generate_research_data(user_description: str) -> str:
     """
     import google.generativeai as genai
     import os
-
     genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
     model = genai.GenerativeModel("gemini-2.0-flash")
     print("Generating research data")
     full_prompt = f"{BACKGROUND_DATA_PROMPT}\n\n{user_description}"
-
     try:
         response = model.generate_content(full_prompt)
-        # print(
-        #     f"\n--- generate_background_data response: {response.usage_metadata} --- \n"
-        # )
-        # print(response.text)
         return response.text
 
     except Exception as e:
